@@ -4,13 +4,18 @@
 var background_color = "#333333"; 
 var board_color = "#5577cc";
 var snake_color = "#dd8888";
-var square_radius = 13;
+var white = "#ffffff";
+var black = "#000000";
+
+var squareRadius = 13;
 var n = 13;
 var squaresInRow = n;
 var squaresInColumn = n;
 var squareSize = 35;
-var game_width = squaresInRow * squareSize;
-var game_height = squaresInColumn * squareSize;
+var gameWidth = squaresInRow * squareSize;
+var gameHeight = squaresInColumn * squareSize;
+
+var gameSpeed = 500;
 
 var initialSnakeSize = 3;
 var snakeSize = initialSnakeSize; 
@@ -18,13 +23,13 @@ var snakeSize = initialSnakeSize;
 var canvas = document.getElementById("drawCanvas");
 var ctx = canvas.getContext("2d");
 ctx.fillStyle = background_color;
-ctx.fillRect(0, 0, game_width, game_height);
+ctx.fillRect(0, 0, gameWidth, gameHeight);
 ctx.fillStyle = board_color;
 
 for (var j = 0; j < n; j++) {
     for (var k = 0; k < n; k++) {
         roundRect(ctx, j * squareSize, k * squareSize, squareSize,
-                  squareSize, square_radius, true, true);
+                  squareSize, squareRadius, true, true);
     }
 }
 
@@ -47,8 +52,41 @@ var snakeLocation = [[keyRectIndex[0]-2,keyRectIndex[1]],[keyRectIndex[0]-1,keyR
 ctx.fillStyle = snake_color;
 for (j = 0; j < snakeLocation.length; j++) {
     roundRect(ctx, snakeLocation[j][0] * squareSize, snakeLocation[j][1] * squareSize, 
-          squareSize, squareSize, square_radius, true, true);
+          squareSize, squareSize, squareRadius, true, true);
 }
+
+// testing use of the setInterval function
+squareState = black;
+yyi = [2,2];
+setInterval(yinYangFlip,100);
+
+function makeSquareWhite() {
+    ctx.fillStyle = white;
+    roundRect(ctx,yyi[0]*squareSize, yyi[1]*squareSize,squareSize,squareSize,
+              squareRadius,true,true);
+    squareState = white;
+}
+
+function makeSquareBlack() {
+    ctx.fillStyle = black;
+    roundRect(ctx,yyi[0]*squareSize, yyi[1]*squareSize,squareSize,squareSize,
+              squareRadius,true,true);
+    squareState = black;
+}
+
+function yinYangFlip() {
+    if (squareState === black) {
+        makeSquareWhite();
+    } else {
+        makeSquareBlack();
+    }
+}
+
+
+
+
+
+
 
 // describes the update to happen upon keystrokes
 function makeUpdateFunction(e) {
@@ -75,12 +113,12 @@ function makeUpdateFunction(e) {
         // now paint the tail end of the snake back to the board color.
         ctx.fillStyle = board_color;
         roundRect(ctx, snakeLocation[0][0] * squareSize, snakeLocation[0][1] * squareSize,squareSize,squareSize,
-        square_radius, true, true);
+        squareRadius, true, true);
         // and shift it off the snake
         snakeLocation.shift();
         ctx.fillStyle = snake_color;
         roundRect(ctx, snakeLocation[snakeLocation.length-1][0] * squareSize, 
-        snakeLocation[snakeLocation.length-1][1] * squareSize,squareSize,squareSize,square_radius, true, true);
+        snakeLocation[snakeLocation.length-1][1] * squareSize,squareSize,squareSize,squareRadius, true, true);
         
     
     });
