@@ -1,86 +1,95 @@
 // Snake code. Requires jQuery and a canvas element called "drawCanvas"
 // game parameters
 
-var background_color = "#333333"; 
-var board_color = "#5577cc";
-var snake_color = "#dd8888";
+var backgroundColor = "#333333"; 
+var boardColor = "#5577cc";
+var snakeColor = "#dd8888";
 var white = "#ffffff";
 var black = "#000000";
 
 var squareRadius = 13;
-var n = 13;
-var squaresInRow = n;
-var squaresInColumn = n;
-var squareSize = 35;
+var squaresInRow = 13;
+var squaresInColumn = 13;
+var squareSize = 35; // in pixels
 var gameWidth = squaresInRow * squareSize;
 var gameHeight = squaresInColumn * squareSize;
 
-var gameSpeed = 500;
+// key global variable that will be modified 
+// by keystrokes, and acted upon after each interval
+// of gameSpeed
+var snakeNextDir = "right"; // arbitrary starting choice
 
-var initialSnakeSize = 3;
-var snakeSize = initialSnakeSize; 
+var gameSpeed = 500;
+var snakeLength = 3; // starting value 
 
 var canvas = document.getElementById("drawCanvas");
 var ctx = canvas.getContext("2d");
-ctx.fillStyle = background_color;
+ctx.fillStyle = backgroundColor;
 ctx.fillRect(0, 0, gameWidth, gameHeight);
-ctx.fillStyle = board_color;
 
-for (var j = 0; j < n; j++) {
-    for (var k = 0; k < n; k++) {
-        roundRect(ctx, j * squareSize, k * squareSize, squareSize,
-                  squareSize, squareRadius, true, true);
+
+function clearToBoardColor() {
+    ctx.fillStyle = boardColor;
+    for (var j = 0; j < n; j++) {
+        for (var k = 0; k < n; k++) {
+            roundRect(ctx, j * squareSize, k * squareSize, squareSize,
+                      squareSize, squareRadius, true, true);
+        }
     }
 }
 
-// initialize block on game board
+clearToBoardColor(); // initialize cleared board state
 
-
-var rand_col = Math.floor(Math.random()*squaresInColumn);
+var randCol = Math.floor(Math.random()*squaresInColumn);
 // assume snake is facing to the right. Make sure all snake originates on board
-var rand_row = Math.floor(Math.random()*(squaresInRow-initialSnakeSize)+initialSnakeSize);
+var randRow = Math.floor(Math.random()*(squaresInRow-initialSnakeSize)+initialSnakeSize);
 
-rand_col = 5;
-rand_row = 5;
-var keyRectIndex = [rand_col, rand_row];
+randCol = 5;
+randRow = 5;
+var keyRectIndex = [randCol, randRow];
 // FIXME location currently independent of snake initial length
 
 // assuming now that snake head is the LAST element of the list
-var snakeLocation = [[keyRectIndex[0]-2,keyRectIndex[1]],[keyRectIndex[0]-1,keyRectIndex[1]],[keyRectIndex[0],keyRectIndex[1]]];
+var snakeState = [[keyRectIndex[0]-2,keyRectIndex[1]],[keyRectIndex[0]-1,keyRectIndex[1]],[keyRectIndex[0],keyRectIndex[1]]];
 
 
-ctx.fillStyle = snake_color;
-for (j = 0; j < snakeLocation.length; j++) {
-    roundRect(ctx, snakeLocation[j][0] * squareSize, snakeLocation[j][1] * squareSize, 
+ctx.fillStyle = snakeColor;
+for (j = 0; j < snakeState.length; j++) {
+    roundRect(ctx, snakeState[j][0] * squareSize, snakeState[j][1] * squareSize, 
           squareSize, squareSize, squareRadius, true, true);
 }
 
-// testing use of the setInterval function
-squareState = black;
-yyi = [2,2];
-setInterval(yinYangFlip,100);
 
-function makeSquareWhite() {
-    ctx.fillStyle = white;
-    roundRect(ctx,yyi[0]*squareSize, yyi[1]*squareSize,squareSize,squareSize,
-              squareRadius,true,true);
-    squareState = white;
-}
+setInterval(updateGameState,gameSpeed);
 
-function makeSquareBlack() {
-    ctx.fillStyle = black;
-    roundRect(ctx,yyi[0]*squareSize, yyi[1]*squareSize,squareSize,squareSize,
-              squareRadius,true,true);
-    squareState = black;
-}
+function updateGameState() {
 
-function yinYangFlip() {
-    if (squareState === black) {
-        makeSquareWhite();
-    } else {
-        makeSquareBlack();
+    // based on snakeNextDir, the resulting direction from user input, update
+    // the keyRectIndex, which indicates where the snake will move next
+    switch(snakeNextDir) {
+        case "left":
+            keyRectIndex[0] = (keyRectIndex[0] - 1).mod(squaresInRow);
+            break;
+        case "up":
+            keyRectIndex[1] = (keyRectIndex[1] - 1).mod(squaresInColumn);
+            break;
+        case "right":
+            keyRectIndex[0] = (keyRectIndex[0] + 1).mod(squaresInRow);
+            break;
+        case "down":
+            keyRectIndex[1] = (keyRectIndex[1] + 1).mod(squaresInColumn);
+            break;
     }
-}
+
+    // now we mutate the snake based on this information
+
+
+
+
+
+
+
+
 
 
 
@@ -91,7 +100,6 @@ function yinYangFlip() {
 // describes the update to happen upon keystrokes
 function makeUpdateFunction(e) {
     return (function directionalUpdate() {
-     
         // update keyRect Index accordingly 
         if (e.which == 37) {
             keyRectIndex[0] = (keyRectIndex[0] - 1).mod(squaresInRow);
@@ -109,27 +117,42 @@ function makeUpdateFunction(e) {
         littleArray[0] = keyRectIndex[0];
         littleArray[1] = keyRectIndex[1];
 
-        snakeLocation.push(littleArray);
+        snakeState.push(littleArray);
         // now paint the tail end of the snake back to the board color.
-        ctx.fillStyle = board_color;
-        roundRect(ctx, snakeLocation[0][0] * squareSize, snakeLocation[0][1] * squareSize,squareSize,squareSize,
+        ctx.fillStyle = boardColor;
+        roundRect(ctx, snakeState[0][0] * squareSize, snakeState[0][1] * squareSize,squareSize,squareSize,
         squareRadius, true, true);
         // and shift it off the snake
-        snakeLocation.shift();
-        ctx.fillStyle = snake_color;
-        roundRect(ctx, snakeLocation[snakeLocation.length-1][0] * squareSize, 
-        snakeLocation[snakeLocation.length-1][1] * squareSize,squareSize,squareSize,squareRadius, true, true);
-        
+        snakeState.shift();
+        ctx.fillStyle = snakeColor;
+        roundRect(ctx, snakeState[snakeState.length-1][0] * squareSize, 
+        snakeState[snakeState.length-1][1] * squareSize,squareSize,squareSize,squareRadius, true, true);
     
     });
 }
 
-
+// update global variable in response to key stroke
 $(document).keydown(function (e) {
-    // make a custom update function depending on e, 
-    // and then call that function to perform the update
-    makeUpdateFunction(e)();
+    switch(e) {
+        case 37:
+            snakeNextDir = "left";
+            break;
+        case 38:
+            snakeNextDir = "up";
+            break;
+        case 39:
+            snakeNextDir = "right";
+            break;
+        case 40:
+            snakeNextDir = "down";
+            break;
+    }
 });
+
+
+
+
+/* ************ UTILITIES *************** */
 
 
 
