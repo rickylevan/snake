@@ -1,0 +1,12 @@
+.gameBlock {
+    height: 200px;
+    width: 200px;
+    background-color: #6688aa;
+    border-radius:10px;
+    padding: 20px 20px 20px 20px;
+    margin: 20px 20px 20px 20px;
+}
+
+body {
+    background-color:#565656;
+}
