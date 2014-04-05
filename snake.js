@@ -5,6 +5,7 @@ var backgroundColor = "#333333";
 var boardColor = "#5577cc";
 //var snakeColor = "#dd8888";
 var snakeColor = "#99cc44";
+var snakeKillColor = "#992222";
 var white = "#ffffff";
 var black = "#000000";
 
@@ -20,7 +21,7 @@ var gameHeight = rowLength * squareSize;
 // of gameSpeed
 var snakeNextDir = "right"; // arbitrary starting choice
 
-var gameSpeed = 60;
+var gameSpeed = 85;
 var snakeLength = 3; // starting value 
 
 // function to compute new location for target tile
@@ -67,10 +68,25 @@ function paintSnake() {
 
 function paintTarget() {
     ctx.fillStyle = white;
-    target = assignNewTarget();
+
     roundRect(ctx, target[0] * squareSize, target[1] * squareSize,
                   squareSize ,squareSize, squareRadius, true, true);
 }
+
+function killSnakeAnimation() {
+
+    // first purge existing state:
+    clearToBoardColor();
+    paintTarget();
+    ctx.fillStyle = snakeKillColor;
+    
+    for (j = 0; j < snakeState.length; j++) {
+        roundRect(ctx, snakeState[j][0] * squareSize, snakeState[j][1] * squareSize,
+                  squareSize ,squareSize, squareRadius, true, true);
+    }
+}
+
+
 
 
 
@@ -110,12 +126,25 @@ function updateGameState() {
     littleArray[1] = snakeHead[1];
     snakeState.push(littleArray);
 
-    delete snakeState[0]; // will this stop endless memory expansion?
-    snakeState.shift();
+    // putting this block earlier to stop
+    if (countInArrayList(snakeState,snakeHead) >= 2) {
+        killSnakeAnimation();
+        clearInterval(refreshIntervalId);
+        return;
+    }
+    // if the snake head and the target are *not* the same, cull the snake
+    if (!(arraysEqual(snakeHead,target))) {
+        delete snakeState[0]; // will this stop endless memory expansion?
+        snakeState.shift();
+    // otherwise, we maintain the snake and now randomize the target
+    } else {
+        target = assignNewTarget(); // shuffle the target to a new location
+    }
 
-    // and now we trigger the animation!
-    drawNewGameBoard();
-
+    // if the snakeHead does not intersect the body:
+    if ((countInArrayList(snakeState,snakeHead) < 2)) {
+        drawNewGameBoard();
+    }
 }
 
 
@@ -154,4 +183,4 @@ target = assignNewTarget();
 paintSnake();
 paintTarget();
 
-setInterval(updateGameState,gameSpeed);
+refreshIntervalId = setInterval(updateGameState,gameSpeed);

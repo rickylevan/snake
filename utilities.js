@@ -70,6 +70,28 @@ Array.prototype.containsList = function ( needle ) {
    return false;
 };
 
+// stack overflow
+function countInArray(array, what) {
+    var count = 0;
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === what) {
+            count++;
+        }
+    }
+    return count;
+}
+
+
+function countInArrayList(array, what) {
+    var count = 0;
+    for (var i = 0; i < array.length; i++) {
+        if (arraysEqual(array[i], what)) {
+            count++;
+        }
+    }
+    return count;
+}
+
 
 
 
