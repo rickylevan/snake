@@ -23,6 +23,31 @@ var snakeNextDir = "right"; // arbitrary starting choice
 
 var gameSpeed = 85;
 var snakeLength = 3; // starting value 
+var canvas;
+var ctx;
+
+
+// setting key canvas and context variables -- globals used often
+$(document).ready(function() {
+	canvas = document.querySelector("#drawCanvas");
+	ctx = canvas.getContext("2d");
+	ctx.fillStyle = backgroundColor;
+	ctx.fillRect(0, 0, gameHeight, gameWidth);
+
+	clearToBoardColor(); // initialize cleared board state
+
+	snakeHead = [5,5];
+	snakeState = [[snakeHead[0]-2,snakeHead[1]],[snakeHead[0]-1,snakeHead[1]],[snakeHead[0],snakeHead[1]]];
+	target = assignNewTarget();
+
+	paintSnake();
+	paintTarget();
+
+	refreshIntervalId = setInterval(updateGameState,gameSpeed);
+});
+
+
+
 
 // function to compute new location for target tile
 function assignNewTarget() {
@@ -40,9 +65,7 @@ function assignNewTarget() {
 }
 
 
-// setting key canvas and context variables -- globals used often
-var canvas = document.getElementById("drawCanvas");
-var ctx = canvas.getContext("2d");
+
 
 function clearToBoardColor() {
     ctx.fillStyle = boardColor;
@@ -171,16 +194,5 @@ $(document).keydown(function (e) {
 
 
 
-ctx.fillStyle = backgroundColor;
-ctx.fillRect(0, 0, gameWidth, gameHeight);
 
-clearToBoardColor(); // initialize cleared board state
 
-snakeHead = [5,5];
-snakeState = [[snakeHead[0]-2,snakeHead[1]],[snakeHead[0]-1,snakeHead[1]],[snakeHead[0],snakeHead[1]]];
-target = assignNewTarget();
-
-paintSnake();
-paintTarget();
-
-refreshIntervalId = setInterval(updateGameState,gameSpeed);
